@@ -10,13 +10,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Our stuff
-#include "shader_s.h"
 #include "display.h"
-#include "entity.h"
-#include "texture.h"
 #include "renderer.h"
 #include "controls.h"
-#include "model.h"
 #include "game.h"
 
 
@@ -30,14 +26,8 @@ extern "C"
 
 int main(void)
 {
-
 	if (!glfwInit())
 		return -1;
-
-
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //you might want to do this when testing the game for shipping
 
     Display display(800.0f, 600.0f, "OpenGL Experiments");
 	if (!display.window)
@@ -70,11 +60,10 @@ int main(void)
 
         //renderer.render(cube, shader, camera, display);
         int idx = 0;
-        //for each(Entity cube in cubes)
-        for (auto& cube : game.Bricks)
+        for (auto& brick : game.Bricks)
         {
-            cube.rotationZ = (float)glfwGetTime() * 20 * idx;
-            renderer.render(cube, game.Shaders.at("entity"), camera, display);
+            brick.rotationZ = (float)glfwGetTime() * 20 * idx;
+            renderer.render(brick, game.Shaders.at("entity"), camera, display);
             idx += 1;
         }
 

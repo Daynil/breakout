@@ -10,6 +10,10 @@ Display::Display(float pDisplayWidth, float pDisplayHeight, std::string title)
 	displayWidth = pDisplayWidth;
 	displayHeight = pDisplayHeight;
 
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //you might want to do this when testing the game for shipping
+
 	// Reports OpenGL errors to std out
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
