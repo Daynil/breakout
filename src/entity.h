@@ -1,6 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
+
 #include <vector>
+#include <optional>
 
 #include "model.h"
 
@@ -9,13 +11,13 @@ class Entity
 public:
 	Model* model;
 
-	glm::vec3 rotation;
-
 	glm::vec3 position;
-	float rotationX, rotationY, rotationZ;
-	float scale;
+	glm::vec3 rotation;
+	glm::vec3 scale;
 
-	Entity(Model* pModel, glm::vec3 pPosition, float pRotationX, float pRotationY, float pRotationZ, float pScale);
+	std::optional<glm::vec3> rgb_color;
+
+	Entity(Model* pModel, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec3> p_rgb_color = std::nullopt);
 
 private:
 	std::vector<float> vertex_positions;

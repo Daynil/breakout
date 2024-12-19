@@ -1,9 +1,8 @@
-#include "model.h"
+#include "raw_model.h"
 
 #include <glad/glad.h>
 
-Model::Model(std::string texturePath, bool textureAlpha, const std::vector<float>& vertex_positions, const std::vector<float>& vertex_texture_uvs, const std::vector<unsigned int>& vertex_indices)
-    : texture(texturePath, textureAlpha)
+RawModel::RawModel(const std::vector<float>& vertex_positions, const std::vector<float>& vertex_texture_uvs, const std::vector<unsigned int>& vertex_indices)
 {
     // Create VAO to store our data in
     // VAO = vertex array objects (stores configuration of the attributes)

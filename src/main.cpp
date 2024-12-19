@@ -29,45 +29,44 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
-    Display display(800.0f, 600.0f, "OpenGL Experiments");
+	Display display(800.0f, 600.0f, "OpenGL Experiments");
 	if (!display.window)
 	{
-        std::cout << "***ERROR initializing glfw window" << std::endl;
+		std::cout << "***ERROR initializing glfw window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
 
-    Camera camera;
-    Controls controls(display.window, &camera);
-    Renderer renderer;
+	Camera camera;
+	Controls controls(display.window, &camera);
+	Renderer renderer;
 
-    Game game;
-    game.Init();
-    game.LoadLevel();
+	Game game(display.displayWidth, display.displayHeight);
+	game.Init();
 
-    float lastFrame = 0.0f;
+	float lastFrame = 0.0f;
 
 	while (!glfwWindowShouldClose(display.window))
 	{
-        float currentFrame = glfwGetTime();
-        // Delta time = seconds per frame (s/f)
-        float deltaTime = currentFrame - lastFrame;
-        float fps = 1 / deltaTime;
-        lastFrame = currentFrame;
+		float currentFrame = glfwGetTime();
+		// Delta time = seconds per frame (s/f)
+		float deltaTime = currentFrame - lastFrame;
+		float fps = 1 / deltaTime;
+		lastFrame = currentFrame;
 
-        controls.processInput(display.window, deltaTime);
-        renderer.prepare();
+		controls.processInput(display.window, deltaTime);
+		renderer.prepare();
 
-        //renderer.render(cube, shader, camera, display);
-        int idx = 0;
-        for (auto& brick : game.Bricks)
-        {
-            brick.rotationZ = (float)glfwGetTime() * 20 * idx;
-            renderer.render(brick, game.Shaders.at("entity"), camera, display);
-            idx += 1;
-        }
+		//renderer.render(cube, shader, camera, display);
+		int idx = 0;
+		for (auto& brick : game.Bricks)
+		{
+			//brick.rotationZ = (float)glfwGetTime() * 20 * idx;
+			renderer.render(brick, game.Shaders.at("entity"), camera, display);
+			idx += 1;
+		}
 
-        //std::cout << gameState.fps << " " << gameState.deltaTime << std::endl;
+		//std::cout << gameState.fps << " " << gameState.deltaTime << std::endl;
 
 		glfwSwapBuffers(display.window);
 		glfwPollEvents();
