@@ -44,10 +44,12 @@ void Renderer::render(Entity& entity, Shader& shader, Camera& camera, Display& d
 	//view = glm::lookAt(camera.cameraPos, camera.cameraPos + camera.cameraFront, camera.cameraUp);
 	//shader.setMat4("view", glm::value_ptr(view));
 
-	if (entity.rgb_color.has_value())
-	{
+	if (entity.rgba_color.has_value()) {
 		shader.setBool("use_color", true);
-		shader.setVec3("u_color", entity.rgb_color.value());
+		shader.setVec4("u_color", entity.rgba_color.value());
+	}
+	else {
+		shader.setBool("use_color", false);
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -55,6 +57,7 @@ void Renderer::render(Entity& entity, Shader& shader, Camera& camera, Display& d
 
 	glDrawElements(GL_TRIANGLES, entity.model->raw_model->vertex_count, GL_UNSIGNED_INT, 0);
 
+	shader.deactivate();
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glBindVertexArray(0);

@@ -44,9 +44,12 @@ Display::Display(float pDisplayWidth, float pDisplayHeight, std::string title)
 	// Behind the scenes, this is used to transform 2d coordinates to coordinates on screen
 	// E.g., (-0.5,0.5) would (as its final transformation) be mapped to (200,450) in screen coords
 	glViewport(0, 0, displayWidth, displayHeight);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Listen to window resize events and update viewport
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 }
 
 void Display::framebuffer_size_callback(GLFWwindow* window, int width, int height)

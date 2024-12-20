@@ -15,9 +15,9 @@ public:
 	glm::vec3 rotation;
 	glm::vec3 scale;
 
-	std::optional<glm::vec3> rgb_color;
+	std::optional<glm::vec4> rgba_color;
 
-	Entity(Model* pModel, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec3> p_rgb_color = std::nullopt);
+	Entity(Model* pModel, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color = std::nullopt);
 
 private:
 	std::vector<float> vertex_positions;

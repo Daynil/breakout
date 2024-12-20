@@ -72,33 +72,38 @@ void Game::LoadLevel(int level)
 		{
 			Model* model;
 			int life = 0;
-			glm::vec3 color;
-			if (brick_type == '0')
-			{
+			std::optional<glm::vec4> color = std::nullopt;
+			if (brick_type == '0') {
 				col += 1;
 				if (col > longest_row)
 					longest_row = col;
 				continue;
 			}
-			else if (brick_type == '1')
-			{
+			else if (brick_type == '1') {
 				life = 999;
 				model = &Models.at("metal");
 			}
-			else if (brick_type == '2')
-			{
+			else if (brick_type == '2') {
 				life = 1;
 				model = &Models.at("wood");
 			}
-			else
-			{
-				life = int(brick_type) - 1;
+			else {
+				int brick_numeric = std::stoi(std::string(1, brick_type));
+				life = brick_numeric - 1;
+				// Regular brick no color for 2
+				if (brick_numeric == 3)
+					color = glm::vec4(0, 0.5, 0, 0.55);
+				if (brick_numeric == 4)
+					color = glm::vec4(0, 0, 0.5, 0.55);
+				if (brick_numeric == 5)
+					color = glm::vec4(0.5, 0, 0, 0.55);
+
 				model = &Models.at("brick");
 			}
 
 			// TODO: make new model for brick which has an entity and "Life"
 
-			Bricks.push_back(Entity(model, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0)));
+			Bricks.push_back(Entity(model, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color));
 
 			col += 1;
 			if (col > longest_row)

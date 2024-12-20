@@ -30,7 +30,7 @@ out vec4 fragColor;
 
 uniform sampler2D modelTexture;
 uniform bool use_color = false;
-uniform vec3 u_color;
+uniform vec4 u_color;
 
 void main()
 {
@@ -38,7 +38,7 @@ void main()
 
     if (use_color)
     {
-        texture_color *= vec4(u_color, 1.0);
+        texture_color.rgb = mix(texture_color.rgb, u_color.rgb, u_color.a);
     }
 
     fragColor = texture_color;
