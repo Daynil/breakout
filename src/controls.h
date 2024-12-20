@@ -7,20 +7,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "camera.h"
+#include "game.h"
 
 class Controls
 {
 public:
-	Controls(GLFWwindow* window, Camera* camera);
+	Controls(GLFWwindow* window, Camera* camera, Game* game);
 
-	void processInput(GLFWwindow* window, float deltaTime);
 	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
 	static void joystick_callback(int jid, int event);
+	void poll_gamepad(GLFWwindow* window);
 
 private:
 	static GLFWwindow* window;
 	Camera* camera;
+	Game* game;
 
 	float lastX = 400;
 	float lastY = 300;

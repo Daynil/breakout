@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 
 int BRICK_WIDTH = 50;
 int BRICK_HEIGHT = 25;
@@ -122,4 +123,22 @@ void Game::LoadLevel(int level)
 		brick.position.x += (bricks_shift_x * BRICK_WIDTH);
 		brick.position.y += (bricks_shift_y * BRICK_HEIGHT);
 	}
+}
+
+void Game::ProcessInput(float dt)
+{
+	if (State != GAME_ACTIVE)
+		return;
+
+	if (keyboard_keys[GLFW_KEY_A]) {
+		std::cout << "pressed a" << std::endl;
+	}
+}
+
+void Game::Update(float dt)
+{
+}
+
+void Game::Render()
+{
 }

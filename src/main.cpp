@@ -38,10 +38,10 @@ int main(void)
 	}
 
 	Camera camera;
-	Controls controls(display.window, &camera);
 	Renderer renderer;
 
 	Game game(display.displayWidth, display.displayHeight);
+	Controls controls(display.window, &camera, &game);
 	game.Init();
 
 	float lastFrame = 0.0f;
@@ -54,8 +54,13 @@ int main(void)
 		float fps = 1 / deltaTime;
 		lastFrame = currentFrame;
 
-		controls.processInput(display.window, deltaTime);
+		controls.poll_gamepad(display.window);
+		game.ProcessInput(deltaTime);
+
+		game.Update(deltaTime);
+
 		renderer.prepare();
+		game.Render();
 
 		//renderer.render(cube, shader, camera, display);
 		int idx = 0;
