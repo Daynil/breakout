@@ -5,10 +5,10 @@
 #include <optional>
 
 
-
-Entity::Entity(Model* pModel, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color)
+Entity::Entity(RawModel* pModel, Texture* pTexture, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color)
 {
 	model = pModel;
+	texture = pTexture;
 	position = pPosition;
 	rotation = pRotation;
 	scale = pScale;

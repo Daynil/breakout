@@ -4,12 +4,14 @@
 #include <vector>
 #include <optional>
 
-#include "model.h"
+#include "texture.h"
+#include "raw_model.h"
 
 class Entity
 {
 public:
-	Model* model;
+	RawModel* model;
+	Texture* texture;
 
 	glm::vec3 position;
 	glm::vec3 rotation;
@@ -17,7 +19,7 @@ public:
 
 	std::optional<glm::vec4> rgba_color;
 
-	Entity(Model* pModel, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color = std::nullopt);
+	Entity(RawModel* pModel, Texture* texture, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color = std::nullopt);
 
 private:
 	std::vector<float> vertex_positions;

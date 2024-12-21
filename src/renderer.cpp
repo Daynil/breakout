@@ -15,7 +15,7 @@ Renderer::Renderer()
 
 void Renderer::render(Entity& entity, Shader& shader, Camera& camera, Display& display)
 {
-	glBindVertexArray(entity.model->raw_model->VAO_ID);
+	glBindVertexArray(entity.model->VAO_ID);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	shader.activate();
@@ -53,9 +53,10 @@ void Renderer::render(Entity& entity, Shader& shader, Camera& camera, Display& d
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, entity.model->texture->textureID);
 
-	glDrawElements(GL_TRIANGLES, entity.model->raw_model->vertex_count, GL_UNSIGNED_INT, 0);
+	glBindTexture(GL_TEXTURE_2D, entity.texture->textureID);
+
+	glDrawElements(GL_TRIANGLES, entity.model->vertex_count, GL_UNSIGNED_INT, 0);
 
 	shader.deactivate();
 	glDisableVertexAttribArray(0);

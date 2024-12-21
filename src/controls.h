@@ -40,6 +40,4 @@ private:
 
 	float mouse_sensitivity = 0.1f;
 	float joystick_sensitivity = 1.0f;
-
-	//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 };

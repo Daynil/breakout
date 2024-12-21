@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
+#include "resource_manager.h"
+
 int BRICK_WIDTH = 50;
 int BRICK_HEIGHT = 25;
 
@@ -36,19 +38,14 @@ void Game::Init()
 		0, 1, 3
 	};
 
-	RawModels.emplace("quad", RawModel(vertices, textureCoords, indices));
+	ResourceManager::LoadRawModel("quad", RawModel(vertices, textureCoords, indices));
 
-	Textures.emplace("ball", Texture(RESOURCES_PATH "awesomeface.png", true));
-	Textures.emplace("wood", Texture(RESOURCES_PATH "container.jpg", false));
-	Textures.emplace("brick", Texture(RESOURCES_PATH "brick.png", true));
-	Textures.emplace("metal", Texture(RESOURCES_PATH "metal.png", true));
+	ResourceManager::LoadTexture("ball", Texture(RESOURCES_PATH "awesomeface.png", true));
+	ResourceManager::LoadTexture("wood", Texture(RESOURCES_PATH "container.jpg", false));
+	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
+	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
 
-	Models.emplace("ball", Model(&RawModels.at("quad"), &Textures.at("ball")));
-	Models.emplace("wood", Model(&RawModels.at("quad"), &Textures.at("wood")));
-	Models.emplace("brick", Model(&RawModels.at("quad"), &Textures.at("brick")));
-	Models.emplace("metal", Model(&RawModels.at("quad"), &Textures.at("metal")));
-
-	Shaders.emplace("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
+	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
 
 	LoadLevel(3);
 }
@@ -65,13 +62,15 @@ void Game::LoadLevel(int level)
 	int longest_row = 0;
 	int tallest_col = 0;
 
+	RawModel* model = &ResourceManager::GetRawModel("quad");
+
 	int row = 0;
 	while (std::getline(level_stream, line))
 	{
 		int col = 0;
 		for (auto& brick_type : line)
 		{
-			Model* model;
+			Texture* texture;
 			int life = 0;
 			std::optional<glm::vec4> color = std::nullopt;
 			if (brick_type == '0') {
@@ -82,11 +81,11 @@ void Game::LoadLevel(int level)
 			}
 			else if (brick_type == '1') {
 				life = 999;
-				model = &Models.at("metal");
+				texture = &ResourceManager::GetTexture("metal");
 			}
 			else if (brick_type == '2') {
 				life = 1;
-				model = &Models.at("wood");
+				texture = &ResourceManager::GetTexture("wood");
 			}
 			else {
 				int brick_numeric = std::stoi(std::string(1, brick_type));
@@ -99,12 +98,15 @@ void Game::LoadLevel(int level)
 				if (brick_numeric == 5)
 					color = glm::vec4(0.5, 0, 0, 0.55);
 
-				model = &Models.at("brick");
+				texture = &ResourceManager::GetTexture("brick");
 			}
 
-			// TODO: make new model for brick which has an entity and "Life"
-
-			Bricks.push_back(Entity(model, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color));
+			Bricks.push_back(
+				Brick(
+					Entity(model, texture, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color),
+					life
+				)
+			);
 
 			col += 1;
 			if (col > longest_row)
@@ -120,8 +122,8 @@ void Game::LoadLevel(int level)
 
 	for (auto& brick : Bricks)
 	{
-		brick.position.x += (bricks_shift_x * BRICK_WIDTH);
-		brick.position.y += (bricks_shift_y * BRICK_HEIGHT);
+		brick.entity.position.x += (bricks_shift_x * BRICK_WIDTH);
+		brick.entity.position.y += (bricks_shift_y * BRICK_HEIGHT);
 	}
 }
 

@@ -14,6 +14,7 @@
 #include "renderer.h"
 #include "controls.h"
 #include "game.h"
+#include "resource_manager.h"
 
 
 #define USE_GPU_ENGINE 0
@@ -67,7 +68,7 @@ int main(void)
 		for (auto& brick : game.Bricks)
 		{
 			//brick.rotationZ = (float)glfwGetTime() * 20 * idx;
-			renderer.render(brick, game.Shaders.at("entity"), camera, display);
+			renderer.render(brick.entity, ResourceManager::GetShader("entity"), camera, display);
 			idx += 1;
 		}
 

@@ -7,7 +7,4 @@ public:
 	unsigned int textureID;
 
 	Texture(std::string texturePath, bool alpha);
-
-private:
-	std::string texturePath;
 };
