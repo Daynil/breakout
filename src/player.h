@@ -4,13 +4,13 @@
 
 #include "entity.h"
 
-class Player
+class Player : public Entity
 {
 public:
-	Entity entity;
-
 	glm::vec2 size = glm::vec2(100.0f, 20.0f);
 	float velocity = 500.0f;
 
-	Player(Entity entity) : entity(entity) {};
+	Player(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+		: Entity(model, texture, position, rotation, scale) {
+	};
 };

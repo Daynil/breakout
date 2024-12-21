@@ -2,11 +2,10 @@
 
 #include "entity.h"
 
-class Brick
+class Brick : public Entity
 {
 public:
-	Entity entity;
 	int life;
 
-	Brick(Entity entity, int life) : entity(entity), life(life) {};
+	Brick(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, std::optional<glm::vec4> p_rgba_color = std::nullopt, int life = 1) : Entity(model, texture, position, rotation, scale), life(life) {};
 };

@@ -19,7 +19,10 @@ public:
 
 	std::optional<glm::vec4> rgba_color;
 
+	Entity() {};
 	Entity(RawModel* pModel, Texture* texture, glm::vec3 pPosition, glm::vec3 pRotation, glm::vec3 pScale, std::optional<glm::vec4> p_rgba_color = std::nullopt);
+
+	virtual ~Entity() {};
 
 private:
 	std::vector<float> vertex_positions;

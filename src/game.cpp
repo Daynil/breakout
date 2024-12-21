@@ -57,7 +57,13 @@ void Game::Init()
 		LevelWidth / 2.0f - player_size.x / 2.0f,
 		LevelHeight - player_size.y, 0.0f
 	);
-	player = new Player(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("paddle"), playerPos, glm::vec3(0), player_size));
+	player = new Player(
+		&ResourceManager::GetRawModel("quad"),
+		&ResourceManager::GetTexture("paddle"),
+		playerPos,
+		glm::vec3(0),
+		player_size
+	);
 }
 
 void Game::LoadLevel(int level)
@@ -113,7 +119,7 @@ void Game::LoadLevel(int level)
 
 			Bricks.push_back(
 				Brick(
-					Entity(model, texture, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color),
+					model, texture, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color,
 					life
 				)
 			);
@@ -132,8 +138,8 @@ void Game::LoadLevel(int level)
 
 	for (auto& brick : Bricks)
 	{
-		brick.entity.position.x += (bricks_shift_x * BRICK_WIDTH);
-		brick.entity.position.y += (bricks_shift_y * BRICK_HEIGHT);
+		brick.position.x += (bricks_shift_x * BRICK_WIDTH);
+		brick.position.y += (bricks_shift_y * BRICK_HEIGHT);
 	}
 }
 
@@ -146,21 +152,21 @@ void Game::ProcessInput(float dt)
 
 	// Keyboard controls
 	if (keyboard_keys[GLFW_KEY_A] || keyboard_keys[GLFW_KEY_LEFT]) {
-		if (player->entity.position.x >= 0)
-			player->entity.position.x -= velocity;
+		if (player->position.x >= 0)
+			player->position.x -= velocity;
 	}
 	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT]) {
-		if (player->entity.position.x <= (LevelWidth - player->size.x))
-			player->entity.position.x += velocity;
+		if (player->position.x <= (LevelWidth - player->size.x))
+			player->position.x += velocity;
 	}
 
 	// Gamepad controls
 	if (left_stick_x != 0) {
-		if (player->entity.position.x >= 0 && player->entity.position.x <= (LevelWidth - player->size.x))
-			player->entity.position.x += velocity * left_stick_x;
+		if (player->position.x >= 0 && player->position.x <= (LevelWidth - player->size.x))
+			player->position.x += velocity * left_stick_x;
 	}
 
-	player->entity.position.x = glm::clamp(player->entity.position.x, 0.0f, LevelWidth - player->size.x);
+	player->position.x = glm::clamp(player->position.x, 0.0f, LevelWidth - player->size.x);
 }
 
 void Game::Update(float dt)
@@ -174,9 +180,9 @@ void Game::Render()
 	renderer->render(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("background"), glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(LevelWidth, LevelHeight, 0)), ResourceManager::GetShader("entity"));
 	for (auto& brick : Bricks)
 	{
-		renderer->render(brick.entity, ResourceManager::GetShader("entity"));
+		renderer->render(brick, ResourceManager::GetShader("entity"));
 	}
-	renderer->render(player->entity, ResourceManager::GetShader("entity"));
+	renderer->render(*player, ResourceManager::GetShader("entity"));
 }
 
 Game::~Game()
