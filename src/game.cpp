@@ -142,20 +142,22 @@ void Game::ProcessInput(float dt)
 	if (State != GAME_ACTIVE)
 		return;
 
+	float velocity = player->velocity * dt;
+
 	// Keyboard controls
 	if (keyboard_keys[GLFW_KEY_A] || keyboard_keys[GLFW_KEY_LEFT]) {
 		if (player->entity.position.x >= 0)
-			player->entity.position.x -= player->velocity * dt;
+			player->entity.position.x -= velocity;
 	}
 	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT]) {
 		if (player->entity.position.x <= (LevelWidth - player->size.x))
-			player->entity.position.x += player->velocity * dt;
+			player->entity.position.x += velocity;
 	}
 
 	// Gamepad controls
 	if (left_stick_x != 0) {
 		if (player->entity.position.x >= 0 && player->entity.position.x <= (LevelWidth - player->size.x))
-			player->entity.position.x += player->velocity * left_stick_x * dt;
+			player->entity.position.x += velocity * left_stick_x;
 	}
 
 	player->entity.position.x = glm::clamp(player->entity.position.x, 0.0f, LevelWidth - player->size.x);
