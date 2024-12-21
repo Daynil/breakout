@@ -14,6 +14,7 @@
 int BRICK_WIDTH = 50;
 int BRICK_HEIGHT = 25;
 
+
 void Game::Init()
 {
 	// Our quad for all objects
@@ -40,6 +41,8 @@ void Game::Init()
 
 	ResourceManager::LoadRawModel("quad", RawModel(vertices, textureCoords, indices));
 
+	ResourceManager::LoadTexture("background", Texture(RESOURCES_PATH "background.jpg", false));
+	ResourceManager::LoadTexture("paddle", Texture(RESOURCES_PATH "paddle.png", true));
 	ResourceManager::LoadTexture("ball", Texture(RESOURCES_PATH "awesomeface.png", true));
 	ResourceManager::LoadTexture("wood", Texture(RESOURCES_PATH "container.jpg", false));
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
@@ -48,6 +51,13 @@ void Game::Init()
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
 
 	LoadLevel(3);
+
+	glm::vec3 player_size = glm::vec3(100.0f, 20.0f, 0.0f);
+	glm::vec3 playerPos = glm::vec3(
+		LevelWidth / 2.0f - player_size.x / 2.0f,
+		LevelHeight - player_size.y, 0.0f
+	);
+	player = new Player(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("paddle"), playerPos, glm::vec3(0), player_size));
 }
 
 void Game::LoadLevel(int level)
@@ -132,8 +142,15 @@ void Game::ProcessInput(float dt)
 	if (State != GAME_ACTIVE)
 		return;
 
-	if (keyboard_keys[GLFW_KEY_A]) {
-		std::cout << "pressed a" << std::endl;
+	if (keyboard_keys[GLFW_KEY_A] || keyboard_keys[GLFW_KEY_LEFT]) {
+		player->entity.position.x -= player->velocity * dt;
+	}
+	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT]) {
+		player->entity.position.x += player->velocity * dt;
+	}
+
+	if (left_stick_x != 0) {
+		player->entity.position.x += player->velocity * left_stick_x * dt;
 	}
 }
 
@@ -145,8 +162,15 @@ void Game::Render()
 {
 	renderer->prepare();
 
+	renderer->render(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("background"), glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(LevelWidth, LevelHeight, 0)), ResourceManager::GetShader("entity"));
 	for (auto& brick : Bricks)
 	{
 		renderer->render(brick.entity, ResourceManager::GetShader("entity"));
 	}
+	renderer->render(player->entity, ResourceManager::GetShader("entity"));
+}
+
+Game::~Game()
+{
+	delete player;
 }

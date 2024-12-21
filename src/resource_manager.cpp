@@ -1,5 +1,7 @@
 #include "resource_manager.h"
 
+#include <glad/glad.h>
+
 std::map<std::string, RawModel> ResourceManager::RawModels;
 std::map<std::string, Shader> ResourceManager::Shaders;
 std::map<std::string, Texture> ResourceManager::Textures;
@@ -39,4 +41,10 @@ RawModel& ResourceManager::GetRawModel(std::string name)
 
 void ResourceManager::Clear()
 {
+	for (auto& iter : Shaders)
+		iter.second.deleteShader();
+	for (auto& iter : RawModels)
+		iter.second.Delete();
+	for (auto& iter : Textures)
+		iter.second.Delete();
 }

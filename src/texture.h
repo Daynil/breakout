@@ -7,4 +7,6 @@ public:
 	unsigned int textureID;
 
 	Texture(std::string texturePath, bool alpha);
+
+	void Delete();
 };

@@ -33,3 +33,8 @@ Texture::Texture(std::string texturePath, bool alpha)
 	}
 	stbi_image_free(data);
 }
+
+void Texture::Delete()
+{
+	glDeleteTextures(1, &textureID);
+}

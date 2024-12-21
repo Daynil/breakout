@@ -68,6 +68,8 @@ int main(void)
 		glfwPollEvents();
 	}
 
+	ResourceManager::Clear();
+
 	//there is no need to call the clear function for the libraries since the os will do that for us.
 	//by calling this functions we are just wasting time.
 	//glfwDestroyWindow(window);

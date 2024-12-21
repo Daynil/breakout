@@ -137,6 +137,8 @@ void Controls::poll_gamepad(GLFWwindow* window)
 			// Avoid dead zone
 			if (std::abs(leftStickX) > 0.1)
 				game->left_stick_x = leftStickX;
+			else
+				game->left_stick_x = 0;
 
 			for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; ++i) {
 				if (state.buttons[i] == GLFW_PRESS)

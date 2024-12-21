@@ -15,7 +15,6 @@ RawModel::RawModel(const std::vector<float>& vertex_positions, const std::vector
 	// Create EBO for our indices
 	// EBO = element buffer objects 
 	// This stores indices that OpenGL uses to decide what vertices to draw and in what order (counterclockwise)
-	unsigned int EBO;
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertex_indices.size() * sizeof(unsigned int), vertex_indices.data(), GL_STATIC_DRAW);
@@ -23,7 +22,6 @@ RawModel::RawModel(const std::vector<float>& vertex_positions, const std::vector
 	// Create VBO for positions and textures
 	// VBO = vertex buffer objects 
 	// This stores the actual object vertices
-	unsigned int VBOs[2];
 	glGenBuffers(2, VBOs);
 
 	// Positions
@@ -43,4 +41,11 @@ RawModel::RawModel(const std::vector<float>& vertex_positions, const std::vector
 	glBindVertexArray(0);
 
 	vertex_count = vertex_indices.size();
+}
+
+void RawModel::Delete()
+{
+	glDeleteVertexArrays(1, &VAO_ID);
+	glDeleteBuffers(2, VBOs);
+	glDeleteBuffers(1, &EBO);
 }
