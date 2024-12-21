@@ -13,4 +13,6 @@ public:
 	Player(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 		: Entity(model, texture, position, rotation, scale) {
 	};
+
+	void Move(float dt, int level_width, float move);
 };
