@@ -64,6 +64,16 @@ void Game::Init()
 		glm::vec3(0),
 		player_size
 	);
+
+	glm::vec3 initial_ball_velocity = glm::vec3(100.0f, -350.0f, 0.0f);
+	float ball_radius = 12.5f;
+	ball = new Ball(
+		&ResourceManager::GetRawModel("quad"),
+		&ResourceManager::GetTexture("ball"),
+		playerPos + glm::vec3((player_size.x / 2.0f) - ball_radius, -ball_radius * 2.0f, 0.0f),
+		glm::vec3(0),
+		glm::vec3(ball_radius, ball_radius, 0.0f)
+	);
 }
 
 void Game::LoadLevel(int level)
@@ -155,12 +165,15 @@ void Game::ProcessInput(float dt)
 		player_movement = -1;
 	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT])
 		player_movement = 1;
+	if (keyboard_keys[GLFW_KEY_SPACE])
+		ball->Release();
 
 	// Gamepad controls
 	if (left_stick_x != 0)
 		player_movement = left_stick_x;
 
 	player->Move(dt, LevelWidth, player_movement);
+	ball->Move(dt, LevelWidth);
 }
 
 void Game::Update(float dt)
@@ -177,6 +190,7 @@ void Game::Render()
 		renderer->render(brick, ResourceManager::GetShader("entity"));
 	}
 	renderer->render(*player, ResourceManager::GetShader("entity"));
+	renderer->render(*ball, ResourceManager::GetShader("entity"));
 }
 
 Game::~Game()

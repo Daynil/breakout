@@ -53,6 +53,11 @@ if(MSVC) # If using the VS compiler...
 	set_property(TARGET "${CMAKE_PROJECT_NAME}" PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug<$<CONFIG:Debug>:Debug>")
 	set_property(TARGET "${CMAKE_PROJECT_NAME}" PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
 
+	# Debug stuff: uncomment to get verbose output (ChatGPT helps a lot to decypher it)
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /Zi /diagnostics:caret")
+	#set(CMAKE_CXX_STANDARD 17)
+	#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*")
+
 endif()
 
 
