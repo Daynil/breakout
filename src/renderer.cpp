@@ -9,23 +9,20 @@
 
 #include "shader_s.h"
 
-Renderer::Renderer()
-{
-}
 
-void Renderer::render(Entity& entity, Shader& shader, Camera& camera, Display& display)
+void Renderer::render(Entity& entity, Shader& shader)
 {
 	glBindVertexArray(entity.model->VAO_ID);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	shader.activate();
 
-	float aspectRatio = display.displayWidth / display.displayHeight;
+	float aspectRatio = display->displayWidth / display->displayHeight;
 
 	// In a 2d game, we use ortho projection
 	// This directly translates display pixel size to NDC
 	/*glm::mat4 projection = glm::perspective(glm::radians(camera.FOV), aspectRatio, camera.NEAR_PLANE, camera.FAR_PLANE);*/
-	glm::mat4 projection = glm::ortho(0.0f, display.displayWidth, display.displayHeight, 0.0f, -1.0f, 1.0f);
+	glm::mat4 projection = glm::ortho(0.0f, display->displayWidth, display->displayHeight, 0.0f, -1.0f, 1.0f);
 	shader.setMat4("projection", glm::value_ptr(projection));
 
 	// Apply entity positions and transformations

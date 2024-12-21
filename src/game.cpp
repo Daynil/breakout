@@ -143,4 +143,10 @@ void Game::Update(float dt)
 
 void Game::Render()
 {
+	renderer->prepare();
+
+	for (auto& brick : Bricks)
+	{
+		renderer->render(brick.entity, ResourceManager::GetShader("entity"));
+	}
 }

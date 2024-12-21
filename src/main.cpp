@@ -39,9 +39,9 @@ int main(void)
 	}
 
 	Camera camera;
-	Renderer renderer;
+	Renderer renderer(&display, &camera);
 
-	Game game(display.displayWidth, display.displayHeight);
+	Game game(display.displayWidth, display.displayHeight, &renderer);
 	Controls controls(display.window, &camera, &game);
 	game.Init();
 
@@ -60,17 +60,7 @@ int main(void)
 
 		game.Update(deltaTime);
 
-		renderer.prepare();
 		game.Render();
-
-		//renderer.render(cube, shader, camera, display);
-		int idx = 0;
-		for (auto& brick : game.Bricks)
-		{
-			//brick.rotationZ = (float)glfwGetTime() * 20 * idx;
-			renderer.render(brick.entity, ResourceManager::GetShader("entity"), camera, display);
-			idx += 1;
-		}
 
 		//std::cout << gameState.fps << " " << gameState.deltaTime << std::endl;
 

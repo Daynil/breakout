@@ -9,6 +9,7 @@
 #include "shader_s.h"
 #include "raw_model.h"
 #include "brick.h"
+#include "renderer.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -21,6 +22,8 @@ class Game
 public:
 	GameState State = GAME_ACTIVE;
 
+	Renderer* renderer;
+
 	std::vector<Brick> Bricks;
 
 	int LevelWidth;
@@ -30,7 +33,7 @@ public:
 	bool keyboard_keys[1024] = { false };
 	bool gamepad_keys[1024] = { false };
 
-	Game(int levelWidth, int levelHeight) : LevelWidth(levelWidth), LevelHeight(levelHeight) {};
+	Game(int levelWidth, int levelHeight, Renderer* renderer) : LevelWidth(levelWidth), LevelHeight(levelHeight), renderer(renderer) {};
 
 	void Init();
 

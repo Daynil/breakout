@@ -13,8 +13,11 @@
 class Renderer
 {
 public:
-	Renderer();
+	Display* display;
+	Camera* camera;
 
-	void render(Entity& entity, Shader& shader, Camera& camera, Display& display);
+	Renderer(Display* display, Camera* camera) : display(display), camera(camera) {};
+
+	void render(Entity& entity, Shader& shader);
 	void prepare();
 };
