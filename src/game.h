@@ -19,6 +19,12 @@ enum GameState {
 	GAME_WIN
 };
 
+struct Collision {
+	bool occured = false;
+	bool vertical = false;
+	glm::vec2 coord;
+};
+
 //// Initial size of the player paddle
 //const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 //// Initial velocity of the player paddle
@@ -53,4 +59,6 @@ public:
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
+	void CheckCollisions();
+	Collision CheckCollision(Ball& one, Entity& two);
 };

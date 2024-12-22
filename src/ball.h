@@ -24,4 +24,6 @@ public:
 	void Reset();
 
 	void Move(float dt, int level_width, int level_height, bool should_release, float player_movement);
+
+	void Rebound(glm::vec2 direction, glm::vec2 recoil = glm::vec2(0.0f, 0.0f));
 };

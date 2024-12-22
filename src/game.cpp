@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <cmath>
 
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
@@ -175,12 +176,16 @@ void Game::ProcessInput(float dt)
 	if (left_stick_x != 0)
 		player_movement = left_stick_x;
 
+	if (gamepad_keys[GLFW_GAMEPAD_BUTTON_X])
+		should_release = true;
+
 	player->Move(dt, LevelWidth, player_movement);
 	ball->Move(dt, LevelWidth, LevelHeight, should_release, player_movement);
 }
 
 void Game::Update(float dt)
 {
+	CheckCollisions();
 }
 
 void Game::Render()
@@ -190,10 +195,82 @@ void Game::Render()
 	renderer->render(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("background"), glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(LevelWidth, LevelHeight, 0)), ResourceManager::GetShader("entity"));
 	for (auto& brick : Bricks)
 	{
-		renderer->render(brick, ResourceManager::GetShader("entity"));
+		if (brick.life > 0)
+			renderer->render(brick, ResourceManager::GetShader("entity"));
 	}
 	renderer->render(*player, ResourceManager::GetShader("entity"));
 	renderer->render(*ball, ResourceManager::GetShader("entity"));
+}
+
+void Game::CheckCollisions()
+{
+	for (Brick& brick : Bricks) {
+		if (brick.life > 0) {
+			Collision collision(CheckCollision(*ball, brick));
+			if (collision.occured) {
+				brick.life = 0;
+				glm::vec2 direction(1.0f, 1.0f);
+				if (collision.vertical)
+					direction.y = -1.0f;
+				else
+					direction.x = -1.0f;
+				ball->Rebound(direction);
+			}
+		}
+	}
+
+	Collision collision(CheckCollision(*ball, *player));
+	if (collision.occured) {
+		glm::vec2 direction(1.0f, 1.0f);
+		glm::vec2 recoil(0.0f, 0.0f);
+		if (collision.vertical) {
+			float player_center = player->position.x + (player->scale.x / 2);
+			float collision_intensity = (collision.coord.x - player_center) / (player->scale.x / 2.0f);
+			direction.y = -1.0f;
+			direction.x = collision_intensity < 0 ? -1.0f : 1.0f;
+			recoil.x = collision_intensity * 10.0f;
+			//direction.x = glm::clamp(collision_dist, -1.5f, 1.5f);
+		}
+		else
+			direction.x = -1.0f;
+		ball->Rebound(direction, recoil);
+	}
+}
+
+Collision Game::CheckCollision(Ball& ball, Entity& two)
+{
+	// Simple collision check if both are square colliders
+	//bool x_overlap = (one.position.x + one.scale.x) >= two.position.x && one.position.x <= (two.position.x + two.scale.x);
+	//bool y_overlap = (one.position.y + one.scale.y) >= two.position.y && one.position.y <= (two.position.y + two.scale.y);
+	//return x_overlap && y_overlap;
+
+	float ball_radius = ball.scale.x / 2.0f;
+
+	glm::vec2 center(ball.position + ball_radius);
+	glm::vec2 aabb_half_extents(two.scale.x / 2.0f, two.scale.y / 2.0f);
+	glm::vec2 aabb_center(
+		two.position.x + aabb_half_extents.x,
+		two.position.y + aabb_half_extents.y
+	);
+
+	glm::vec2 difference = center - aabb_center;
+	glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
+	glm::vec2 closest = aabb_center + clamped;
+	difference = closest - center;
+
+	bool collision = glm::length(difference) < ball_radius;
+	bool collision_vertical = false;
+	if (collision) {
+		if (closest.y <= two.position.y || closest.y >= (two.position.y + two.scale.y)) {
+			collision_vertical = true;
+			//std::cout << "vertical!" << std::endl;
+		}
+		else {
+			//std::cout << "horizontal!" << std::endl;
+		}
+	}
+
+	return Collision{ collision, collision_vertical, closest };
 }
 
 Game::~Game()
