@@ -202,6 +202,28 @@ void Game::Render()
 	renderer->render(*ball, ResourceManager::GetShader("entity"));
 }
 
+Direction VectorDirection(glm::vec2 target)
+{
+	glm::vec2 compass[] = {
+		glm::vec2(0.0f, 1.0f),	// up
+		glm::vec2(1.0f, 0.0f),	// right
+		glm::vec2(0.0f, -1.0f),	// down
+		glm::vec2(-1.0f, 0.0f)	// left
+	};
+	float max = 0.0f;
+	unsigned int best_match = -1;
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		float dot_product = glm::dot(glm::normalize(target), compass[i]);
+		if (dot_product > max)
+		{
+			max = dot_product;
+			best_match = i;
+		}
+	}
+	return (Direction)best_match;
+}
+
 void Game::CheckCollisions()
 {
 	for (Brick& brick : Bricks) {
@@ -209,31 +231,39 @@ void Game::CheckCollisions()
 			Collision collision(CheckCollision(*ball, brick));
 			if (collision.occured) {
 				brick.life = 0;
-				glm::vec2 direction(1.0f, 1.0f);
-				if (collision.vertical)
-					direction.y = -1.0f;
-				else
-					direction.x = -1.0f;
-				ball->Rebound(direction);
+
+				if (collision.dir == LEFT || collision.dir == RIGHT) {
+					ball->velocity.x = -ball->velocity.x;
+					float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.x);
+					if (collision.dir == LEFT)
+						ball->position.x += penetration;
+					else
+						ball->position.x -= penetration;
+				}
+				else {
+					ball->velocity.y = -ball->velocity.y;
+					float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.y);
+					if (collision.dir == UP)
+						ball->position.y -= penetration;
+					else
+						ball->position.y += penetration;
+				}
 			}
 		}
 	}
 
-	Collision collision(CheckCollision(*ball, *player));
-	if (collision.occured) {
-		glm::vec2 direction(1.0f, 1.0f);
-		glm::vec2 recoil(0.0f, 0.0f);
-		if (collision.vertical) {
-			float player_center = player->position.x + (player->scale.x / 2);
-			float collision_intensity = (collision.coord.x - player_center) / (player->scale.x / 2.0f);
-			direction.y = -1.0f;
-			direction.x = collision_intensity < 0 ? -1.0f : 1.0f;
-			recoil.x = collision_intensity * 10.0f;
-			//direction.x = glm::clamp(collision_dist, -1.5f, 1.5f);
+	if (!ball->stuck) {
+		Collision collision(CheckCollision(*ball, *player));
+		if (collision.occured) {
+			float center_board = player->position.x + player->scale.x / 2.0f;
+			float dist = (ball->position.x + (ball->scale.x / 2.0f) - center_board);
+			float percentage = dist / (player->scale.x / 2.0f);
+			float strength = 2.0f;
+			glm::vec2 old_velocity = ball->velocity;
+			ball->velocity.x = ball->initial_velocity_x * percentage * strength;
+			ball->velocity.y = -1.0f * std::abs(ball->velocity.y);
+			ball->velocity = glm::normalize(ball->velocity) * glm::length(old_velocity);
 		}
-		else
-			direction.x = -1.0f;
-		ball->Rebound(direction, recoil);
 	}
 }
 
@@ -259,18 +289,9 @@ Collision Game::CheckCollision(Ball& ball, Entity& two)
 	difference = closest - center;
 
 	bool collision = glm::length(difference) < ball_radius;
-	bool collision_vertical = false;
-	if (collision) {
-		if (closest.y <= two.position.y || closest.y >= (two.position.y + two.scale.y)) {
-			collision_vertical = true;
-			//std::cout << "vertical!" << std::endl;
-		}
-		else {
-			//std::cout << "horizontal!" << std::endl;
-		}
-	}
+	Direction dir = VectorDirection(difference);
 
-	return Collision{ collision, collision_vertical, closest };
+	return Collision{ collision, dir, difference };
 }
 
 Game::~Game()

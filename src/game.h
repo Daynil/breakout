@@ -19,16 +19,18 @@ enum GameState {
 	GAME_WIN
 };
 
-struct Collision {
-	bool occured = false;
-	bool vertical = false;
-	glm::vec2 coord;
+enum Direction {
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
 };
 
-//// Initial size of the player paddle
-//const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
-//// Initial velocity of the player paddle
-//const float PLAYER_VELOCITY(500.0f);
+struct Collision {
+	bool occured;
+	Direction dir;
+	glm::vec2 diff;
+};
 
 class Game
 {

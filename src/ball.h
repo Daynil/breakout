@@ -7,12 +7,11 @@
 
 class Ball : public Entity
 {
-private:
-	float initial_velocity_x = 100.0f;
-	float initial_velocity_y = 350.0f;
-
 public:
 	Player* player;
+
+	float initial_velocity_x = 100.0f;
+	float initial_velocity_y = 350.0f;
 
 	bool stuck = true;
 	glm::vec3 velocity = glm::vec3(initial_velocity_x, -initial_velocity_y, 0.0f);
@@ -24,6 +23,4 @@ public:
 	void Reset();
 
 	void Move(float dt, int level_width, int level_height, bool should_release, float player_movement);
-
-	void Rebound(glm::vec2 direction, glm::vec2 recoil = glm::vec2(0.0f, 0.0f));
 };

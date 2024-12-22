@@ -49,11 +49,3 @@ void Ball::Move(float dt, int level_width, int level_height, bool should_release
 		Reset();
 	}
 }
-
-void Ball::Rebound(glm::vec2 direction, glm::vec2 recoil)
-{
-	std::cout << "Dir   : " << direction.x << "," << direction.y << std::endl;
-	std::cout << "Recoil: " << recoil.x << "," << recoil.y << std::endl;
-	velocity.x = (velocity.x * direction.x) + recoil.x;
-	velocity.y = (velocity.y * direction.y) + recoil.y;
-}
