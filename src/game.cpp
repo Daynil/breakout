@@ -43,7 +43,7 @@ void Game::Init()
 
 	ResourceManager::LoadTexture("background", Texture(RESOURCES_PATH "background.jpg", false));
 	ResourceManager::LoadTexture("paddle", Texture(RESOURCES_PATH "paddle.png", true));
-	ResourceManager::LoadTexture("ball", Texture(RESOURCES_PATH "awesomeface.png", true));
+	ResourceManager::LoadTexture("ball", Texture(RESOURCES_PATH "ball.png", true));
 	ResourceManager::LoadTexture("wood", Texture(RESOURCES_PATH "container.jpg", false));
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
 	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
@@ -66,14 +66,16 @@ void Game::Init()
 	);
 
 	glm::vec3 initial_ball_velocity = glm::vec3(100.0f, -350.0f, 0.0f);
-	float ball_radius = 12.5f;
+	float ball_radius = 10.0f;
 	ball = new Ball(
 		&ResourceManager::GetRawModel("quad"),
 		&ResourceManager::GetTexture("ball"),
-		playerPos + glm::vec3((player_size.x / 2.0f) - ball_radius, -ball_radius * 2.0f, 0.0f),
 		glm::vec3(0),
-		glm::vec3(ball_radius, ball_radius, 0.0f)
+		glm::vec3(0),
+		glm::vec3(ball_radius * 2, ball_radius * 2, 0.0f),
+		player
 	);
+	ball->Reset();
 }
 
 void Game::LoadLevel(int level)
@@ -159,6 +161,7 @@ void Game::ProcessInput(float dt)
 		return;
 
 	float player_movement = 0;
+	float should_release = false;
 
 	// Keyboard controls
 	if (keyboard_keys[GLFW_KEY_A] || keyboard_keys[GLFW_KEY_LEFT])
@@ -166,14 +169,14 @@ void Game::ProcessInput(float dt)
 	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT])
 		player_movement = 1;
 	if (keyboard_keys[GLFW_KEY_SPACE])
-		ball->Release();
+		should_release = true;
 
 	// Gamepad controls
 	if (left_stick_x != 0)
 		player_movement = left_stick_x;
 
 	player->Move(dt, LevelWidth, player_movement);
-	ball->Move(dt, LevelWidth);
+	ball->Move(dt, LevelWidth, LevelHeight, should_release, player_movement);
 }
 
 void Game::Update(float dt)
