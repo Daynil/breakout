@@ -9,6 +9,7 @@
 
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+#include <raudio.h>
 
 #include "resource_manager.h"
 
@@ -53,6 +54,13 @@ void Game::Init()
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
 	ResourceManager::LoadShader("entity_tinted", Shader(RESOURCES_PATH "shaders/entity_tinted.shader"));
 	ResourceManager::LoadShader("particle", Shader(RESOURCES_PATH "shaders/particle.shader"));
+
+	InitAudioDevice();
+	//ResourceManager::LoadRSound("brick", RESOURCES_PATH "bleep.mp3");
+	ResourceManager::LoadRSound("brick", RESOURCES_PATH "solid.wav");
+	ResourceManager::LoadRSound("brick_solid", RESOURCES_PATH "solid.wav");
+	ResourceManager::LoadRSound("powerup", RESOURCES_PATH "powerup.wav");
+	ResourceManager::LoadRSound("paddle", RESOURCES_PATH "bleep.wav");
 
 	LoadLevel(3);
 
@@ -245,6 +253,7 @@ void Game::CheckCollisions()
 			Collision collision(CheckCollision(*ball, brick));
 			if (collision.occured) {
 				brick.life = 0;
+				PlaySound(ResourceManager::GetSound("brick"));
 
 				if (collision.dir == LEFT || collision.dir == RIGHT) {
 					ball->velocity.x = -ball->velocity.x;
@@ -269,6 +278,7 @@ void Game::CheckCollisions()
 	if (!ball->stuck) {
 		Collision collision(CheckCollision(*ball, *player));
 		if (collision.occured) {
+			PlaySound(ResourceManager::GetSound("paddle"));
 			float center_board = player->position.x + player->scale.x / 2.0f;
 			float dist = (ball->position.x + (ball->scale.x / 2.0f) - center_board);
 			float percentage = dist / (player->scale.x / 2.0f);

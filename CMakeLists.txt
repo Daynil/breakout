@@ -16,6 +16,7 @@ add_subdirectory(thirdparty/glfw-3.3.2)			# Window opener
 add_subdirectory(thirdparty/glad)				# Opengl loader
 add_subdirectory(thirdparty/stb_image)			# Loading images
 add_subdirectory(thirdparty/stb_truetype)		# Loading ttf font files
+add_subdirectory(thirdparty/raudio)				# Audio
 add_subdirectory(thirdparty/glm)				# Math
 add_subdirectory(thirdparty/imgui-docking)		# UI
 
@@ -65,5 +66,5 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_INCLUDES})
 
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw 
-	glad stb_image stb_truetype imgui)
+	glad stb_image stb_truetype raudio imgui)
 
