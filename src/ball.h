@@ -16,7 +16,7 @@ public:
 	bool stuck = true;
 	glm::vec3 velocity = glm::vec3(initial_velocity_x, -initial_velocity_y, 0.0f);
 
-	Ball(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, Player* player, std::optional<glm::vec4> p_rgba_color = std::nullopt) : Entity(model, texture, position, rotation, scale, p_rgba_color), player(player) {};
+	Ball(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, Player* player) : Entity(model, texture, position, rotation, scale), player(player) {};
 
 	void Release();
 

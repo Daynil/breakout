@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "player.h"
 #include "ball.h"
+#include "particle_manager.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -42,6 +43,8 @@ public:
 	std::vector<Brick> Bricks;
 	Player* player;
 	Ball* ball;
+
+	ParticleManager* particle_manager;
 
 	int LevelWidth;
 	int LevelHeight;

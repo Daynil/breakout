@@ -1,0 +1,34 @@
+#pragma once
+
+#include <vector>
+
+#include "entity.h"
+#include "particle.h"
+#include "shader_s.h"
+#include "raw_model.h"
+#include "texture.h"
+#include "renderer.h"
+
+class ParticleManager
+{
+public:
+	RawModel* model;
+	Texture* texture;
+	Shader* shader;
+
+	Entity* ref_entity;
+
+	std::vector<Particle> particles;
+
+	unsigned int num_particles;
+
+	ParticleManager(RawModel* model, Texture* texture, Shader* shader, Entity* ref_entity)
+		:model(model), texture(texture), shader(shader), ref_entity(ref_entity) {
+	};
+
+	void Init(unsigned int num_particles);
+
+	void Render(Renderer& renderer);
+
+	void Update(float dt);
+};

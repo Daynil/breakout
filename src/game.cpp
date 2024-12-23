@@ -48,8 +48,11 @@ void Game::Init()
 	ResourceManager::LoadTexture("wood", Texture(RESOURCES_PATH "container.jpg", false));
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
 	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
+	ResourceManager::LoadTexture("particle", Texture(RESOURCES_PATH "particle.png", true));
 
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
+	ResourceManager::LoadShader("entity_tinted", Shader(RESOURCES_PATH "shaders/entity_tinted.shader"));
+	ResourceManager::LoadShader("particle", Shader(RESOURCES_PATH "shaders/particle.shader"));
 
 	LoadLevel(3);
 
@@ -77,6 +80,14 @@ void Game::Init()
 		player
 	);
 	ball->Reset();
+
+	particle_manager = new ParticleManager(
+		&ResourceManager::GetRawModel("quad"),
+		&ResourceManager::GetTexture("particle"),
+		&ResourceManager::GetShader("particle"),
+		ball
+	);
+	particle_manager->Init(800);
 }
 
 void Game::LoadLevel(int level)
@@ -101,7 +112,7 @@ void Game::LoadLevel(int level)
 		{
 			Texture* texture;
 			int life = 0;
-			std::optional<glm::vec4> color = std::nullopt;
+			glm::vec4 color = glm::vec4(0);
 			if (brick_type == '0') {
 				col += 1;
 				if (col > longest_row)
@@ -186,6 +197,7 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	CheckCollisions();
+	particle_manager->Update(dt);
 }
 
 void Game::Render()
@@ -196,10 +208,12 @@ void Game::Render()
 	for (auto& brick : Bricks)
 	{
 		if (brick.life > 0)
-			renderer->render(brick, ResourceManager::GetShader("entity"));
+			renderer->render(brick, ResourceManager::GetShader("entity_tinted"));
 	}
 	renderer->render(*player, ResourceManager::GetShader("entity"));
 	renderer->render(*ball, ResourceManager::GetShader("entity"));
+
+	particle_manager->Render(*renderer);
 }
 
 Direction VectorDirection(glm::vec2 target)

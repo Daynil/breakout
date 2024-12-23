@@ -41,13 +41,7 @@ void Renderer::render(Entity& entity, Shader& shader)
 	//view = glm::lookAt(camera.cameraPos, camera.cameraPos + camera.cameraFront, camera.cameraUp);
 	//shader.setMat4("view", glm::value_ptr(view));
 
-	if (entity.rgba_color.has_value()) {
-		shader.setBool("use_color", true);
-		shader.setVec4("u_color", entity.rgba_color.value());
-	}
-	else {
-		shader.setBool("use_color", false);
-	}
+	entity.ProvideRenderData(shader);
 
 	glActiveTexture(GL_TEXTURE0);
 

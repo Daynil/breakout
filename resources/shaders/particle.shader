@@ -29,8 +29,11 @@ in vec2 pass_textureCoord;
 out vec4 fragColor;
 
 uniform sampler2D modelTexture;
+uniform vec4 u_color;
 
 void main()
 {
-    fragColor = texture(modelTexture, pass_textureCoord);;
+    vec4 texture_color = texture(modelTexture, pass_textureCoord);
+    fragColor = texture_color * u_color;
+    //fragColor = texture_color * vec4(1.0, 1.0, 0.6, 1.0);
 };
