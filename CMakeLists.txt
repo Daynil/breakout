@@ -19,6 +19,7 @@ add_subdirectory(thirdparty/stb_truetype)		# Loading ttf font files
 add_subdirectory(thirdparty/raudio)				# Audio
 add_subdirectory(thirdparty/glm)				# Math
 add_subdirectory(thirdparty/imgui-docking)		# UI
+add_subdirectory(thirdparty/freetype)			# Fonts
 
 
 # Define MY_SOURCES to be a list of all the source files for my game 
@@ -66,5 +67,5 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_INCLUDES})
 
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw 
-	glad stb_image stb_truetype raudio imgui)
+	glad stb_image stb_truetype raudio imgui freetype)
 
