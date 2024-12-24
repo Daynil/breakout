@@ -63,9 +63,7 @@ void Game::Init()
 	ResourceManager::LoadRSound("powerup", RESOURCES_PATH "powerup.wav");
 	ResourceManager::LoadRSound("paddle", RESOURCES_PATH "bleep.wav");
 
-	text_renderer = new TextRenderer(LevelWidth, LevelHeight, RESOURCES_PATH "arial.ttf");
-
-	LoadLevel(3);
+	text_renderer = new TextRenderer(LevelWidth, LevelHeight, RESOURCES_PATH "PressStart2P.ttf");
 
 	glm::vec3 player_size = glm::vec3(100.0f, 20.0f, 0.0f);
 	glm::vec3 playerPos = glm::vec3(
@@ -99,14 +97,25 @@ void Game::Init()
 		ball
 	);
 	particle_manager->Init(800);
+
+	ResetGame();
 }
 
-void Game::LoadLevel(int level)
+void Game::ResetGame()
 {
+	ball->Reset();
+	lives = 3;
+	LoadLevel(level);
+}
+
+void Game::LoadLevel(int p_level)
+{
+	Bricks.clear();
+
 	int max_bricks_x = LevelWidth / BRICK_WIDTH;
 	int max_bricks_y = LevelHeight / BRICK_HEIGHT * 0.75;
 
-	std::ifstream level_stream(RESOURCES_PATH "level" + std::to_string(level) + ".txt");
+	std::ifstream level_stream(RESOURCES_PATH "level" + std::to_string(p_level) + ".txt");
 	std::string line;
 	std::stringstream ss;
 
@@ -180,8 +189,35 @@ void Game::LoadLevel(int level)
 
 void Game::ProcessInput(float dt)
 {
-	if (State != GAME_ACTIVE)
+	if (State == GAME_MENU) {
+		if (keyboard_keys[GLFW_KEY_ENTER] && !keyboard_keys_processed[GLFW_KEY_ENTER]) {
+			State = GAME_ACTIVE;
+			keyboard_keys_processed[GLFW_KEY_ENTER] = true;
+		}
+
+		if (keyboard_keys[GLFW_KEY_W] && !keyboard_keys_processed[GLFW_KEY_W]) {
+			level += 1;
+			if (level == 4)
+				level = 3;
+			LoadLevel(level);
+			keyboard_keys_processed[GLFW_KEY_W] = true;
+		}
+		if (keyboard_keys[GLFW_KEY_S] && !keyboard_keys_processed[GLFW_KEY_S]) {
+			level -= 1;
+			if (level == 0)
+				level = 1;
+			LoadLevel(level);
+			keyboard_keys_processed[GLFW_KEY_S] = true;
+		}
 		return;
+	}
+	else if (State == GAME_WIN) {
+		if (keyboard_keys[GLFW_KEY_ENTER] && !keyboard_keys_processed[GLFW_KEY_ENTER]) {
+			State = GAME_MENU;
+			keyboard_keys_processed[GLFW_KEY_ENTER] = true;
+		}
+		return;
+	}
 
 	float player_movement = 0;
 	float should_release = false;
@@ -202,13 +238,36 @@ void Game::ProcessInput(float dt)
 		should_release = true;
 
 	player->Move(dt, LevelWidth, player_movement);
-	ball->Move(dt, LevelWidth, LevelHeight, should_release, player_movement);
+	bool life_lost = ball->Move(dt, LevelWidth, LevelHeight, should_release, player_movement);
+
+	if (life_lost)
+	{
+		lives -= 1;
+		if (lives == 0) {
+			ResetGame();
+			State = GAME_MENU;
+		}
+	}
 }
 
 void Game::Update(float dt)
 {
 	CheckCollisions();
 	particle_manager->Update(dt);
+	if (LevelComplete()) {
+		ResetGame();
+		State = GAME_WIN;
+	}
+}
+
+
+bool Game::LevelComplete()
+{
+	for (Brick& brick : Bricks) {
+		if (brick.life > 0)
+			return false;
+	}
+	return true;
 }
 
 void Game::Render()
@@ -225,7 +284,16 @@ void Game::Render()
 	renderer->render(*ball, ResourceManager::GetShader("entity"));
 
 	particle_manager->Render(*renderer);
-	text_renderer->RenderText("Lives: 3", 5.0f, 5.0f, 1.0f);
+	text_renderer->RenderText("Lives: " + std::to_string(lives), glm::vec2(5.0f, 5.0f), 0.4f);
+
+	if (State == GAME_MENU) {
+		text_renderer->RenderText("Press Enter or Start to start", glm::vec2(140.0f, LevelHeight / 2.0f), 0.4f);
+		text_renderer->RenderText("Press W or S to select level", glm::vec2(210.0f, (LevelHeight / 2.0f) + 30.0f), 0.3f);
+	}
+	else if (State == GAME_WIN) {
+		text_renderer->RenderText("You Won!!!", glm::vec2(240.0f, LevelHeight / 2.0f), 0.4f);
+		text_renderer->RenderText("Press Enter to retry or Esc to quit", glm::vec2(190.0f, (LevelHeight / 2.0f) + 30.0f), 0.3f);
+	}
 }
 
 Direction VectorDirection(glm::vec2 target)

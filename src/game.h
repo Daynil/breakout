@@ -37,7 +37,7 @@ struct Collision {
 class Game
 {
 public:
-	GameState State = GAME_ACTIVE;
+	GameState State = GAME_MENU;
 
 	Renderer* renderer;
 	TextRenderer* text_renderer;
@@ -51,15 +51,22 @@ public:
 	int LevelWidth;
 	int LevelHeight;
 
+	int lives = 3;
+	int level = 1;
+
 	float left_stick_x = 0;
 	bool keyboard_keys[1024] = { false };
+	bool keyboard_keys_processed[1024] = { false };
 	bool gamepad_keys[1024] = { false };
+	bool gamepad_keys_processed[1024] = { false };
 
 	Game(int levelWidth, int levelHeight, Renderer* renderer) : LevelWidth(levelWidth), LevelHeight(levelHeight), renderer(renderer) {};
 	~Game();
 
 	void Init();
 
+	bool LevelComplete();
+	void ResetGame();
 	void LoadLevel(int level);
 
 	// Game loop

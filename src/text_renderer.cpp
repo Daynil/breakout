@@ -82,7 +82,7 @@ void TextRenderer::LoadCharacters(std::string font_path)
 	glBindVertexArray(0);
 }
 
-void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
+void TextRenderer::RenderText(std::string text, glm::vec2 position, float scale, glm::vec3 color)
 {
 	Shader& s = ResourceManager::GetShader("text");
 	s.activate();
@@ -97,8 +97,8 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 	for (c = text.begin(); c != text.end(); c++) {
 		Character ch = characters[*c];
 
-		float xpos = x + ch.Bearing.x * scale;
-		float ypos = y + (characters['H'].Bearing.y - ch.Bearing.y) * scale;
+		float xpos = position.x + ch.Bearing.x * scale;
+		float ypos = position.y + (characters['H'].Bearing.y - ch.Bearing.y) * scale;
 
 		float w = ch.Size.x * scale;
 		float h = ch.Size.y * scale;
@@ -122,7 +122,7 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
 		// bitshift by 6 to get value in pixels (2^6 = 64)
-		x += (ch.Advance >> 6) * scale;
+		position.x += (ch.Advance >> 6) * scale;
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

@@ -18,9 +18,7 @@ public:
 
 	Ball(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, Player* player) : Entity(model, texture, position, rotation, scale), player(player) {};
 
-	void Release();
-
 	void Reset();
 
-	void Move(float dt, int level_width, int level_height, bool should_release, float player_movement);
+	bool Move(float dt, int level_width, int level_height, bool should_release, float player_movement);
 };

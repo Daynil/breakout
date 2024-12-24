@@ -12,7 +12,7 @@ void Ball::Reset()
 	velocity = glm::vec3(initial_velocity_x, -initial_velocity_y, 0);
 }
 
-void Ball::Move(float dt, int level_width, int level_height, bool should_release, float player_movement)
+bool Ball::Move(float dt, int level_width, int level_height, bool should_release, float player_movement)
 {
 	if (stuck && should_release) {
 		stuck = false;
@@ -26,7 +26,7 @@ void Ball::Move(float dt, int level_width, int level_height, bool should_release
 
 	if (stuck) {
 		position.x = player->position.x + (player->scale.x / 2.0f) - (scale.x / 2.0f);
-		return;
+		return false;
 	}
 
 	position += velocity * dt;
@@ -47,5 +47,8 @@ void Ball::Move(float dt, int level_width, int level_height, bool should_release
 
 	if (position.y >= level_height) {
 		Reset();
+		return true;
 	}
+
+	return false;
 }

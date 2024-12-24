@@ -27,7 +27,7 @@ public:
 
 	void LoadCharacters(std::string font_path);
 
-	void RenderText(std::string text, float x, float y, float scale, glm::vec3 color = glm::vec3(1.0f));
+	void RenderText(std::string text, glm::vec2 position, float scale, glm::vec3 color = glm::vec3(1.0f));
 
 private:
 	unsigned int textVAO, textVBO;

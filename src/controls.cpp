@@ -86,8 +86,10 @@ void Controls::key_callback(GLFWwindow* window, int key, int scancode, int actio
 	{
 		if (action == GLFW_PRESS)
 			controls->game->keyboard_keys[key] = true;
-		else if (action == GLFW_RELEASE)
+		else if (action == GLFW_RELEASE) {
 			controls->game->keyboard_keys[key] = false;
+			controls->game->keyboard_keys_processed[key] = false;
+		}
 	}
 }
 
@@ -143,8 +145,10 @@ void Controls::poll_gamepad(GLFWwindow* window)
 			for (int i = 0; i < GLFW_GAMEPAD_BUTTON_LAST; ++i) {
 				if (state.buttons[i] == GLFW_PRESS)
 					game->gamepad_keys[i] = true;
-				else if (state.buttons[i] == GLFW_RELEASE)
+				else if (state.buttons[i] == GLFW_RELEASE) {
 					game->gamepad_keys[i] = false;
+					game->gamepad_keys_processed[i] = false;
+				}
 			}
 		}
 	}
