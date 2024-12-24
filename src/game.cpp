@@ -325,4 +325,6 @@ Collision Game::CheckCollision(Ball& ball, Entity& two)
 Game::~Game()
 {
 	delete player;
+	delete text_renderer;
+	delete ball;
 }

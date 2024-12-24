@@ -89,7 +89,7 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 	glm::mat4 projection = glm::ortho(0.0f, screen_width, screen_height, 0.0f);
 	s.setMat4("projection", glm::value_ptr(projection));
 	s.setInt("text", 0);
-	glUniform3f(glGetUniformLocation(s.ID, "textColor"), color.x, color.y, color.z);
+	s.setVec3("textColor", color);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(textVAO);
 
@@ -98,7 +98,7 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
 		Character ch = characters[*c];
 
 		float xpos = x + ch.Bearing.x * scale;
-		float ypos = y - (characters['H'].Bearing.y - ch.Bearing.y) * scale;
+		float ypos = y + (characters['H'].Bearing.y - ch.Bearing.y) * scale;
 
 		float w = ch.Size.x * scale;
 		float h = ch.Size.y * scale;
