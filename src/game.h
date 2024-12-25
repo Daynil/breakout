@@ -14,6 +14,7 @@
 #include "ball.h"
 #include "particle_manager.h"
 #include "text_renderer.h"
+#include "powerup.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -43,6 +44,8 @@ public:
 	TextRenderer* text_renderer;
 
 	std::vector<Brick> Bricks;
+	std::vector<Powerup> powerups;
+
 	Player* player;
 	Ball* ball;
 
@@ -69,10 +72,13 @@ public:
 	void ResetGame();
 	void LoadLevel(int level);
 
+	void RollForPowerup(Brick& brick_destroyed);
+
 	// Game loop
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
 	void CheckCollisions();
-	Collision CheckCollision(Ball& one, Entity& two);
+	Collision CheckBallCollision(Ball& one, Entity& two);
+	Collision CheckCollision(Entity& one, Entity& two);
 };

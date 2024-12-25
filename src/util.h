@@ -1,3 +1,5 @@
+#pragma once
+
 #include <random>
 
 int random_int(int from, int to)

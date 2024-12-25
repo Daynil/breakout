@@ -13,6 +13,7 @@
 
 #include "resource_manager.h"
 #include "text_renderer.h"
+//#include "util.h"
 
 int BRICK_WIDTH = 50;
 int BRICK_HEIGHT = 25;
@@ -50,6 +51,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
 	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
 	ResourceManager::LoadTexture("particle", Texture(RESOURCES_PATH "particle.png", true));
+	ResourceManager::LoadTexture("powerup_speed", Texture(RESOURCES_PATH "powerup_speed.png", true));
 
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
 	ResourceManager::LoadShader("entity_tinted", Shader(RESOURCES_PATH "shaders/entity_tinted.shader"));
@@ -189,6 +191,27 @@ void Game::LoadLevel(int p_level)
 	}
 }
 
+void Game::RollForPowerup(Brick& brick_destroyed)
+{
+	//if (random_int(1, 2) == 2) {
+	if (true) {
+		powerups.push_back(
+			Powerup(
+				&ResourceManager::GetRawModel("quad"),
+				&ResourceManager::GetTexture("powerup_speed"),
+				glm::vec3(
+					brick_destroyed.position.x + (BRICK_WIDTH / 2.0f),
+					brick_destroyed.position.y,
+					0),
+				glm::vec3(0),
+				glm::vec3(20.0f, 20.0f, 0),
+				glm::vec4(0.7f, 0.0f, 0.0f, 1),
+				"speed"
+			)
+		);
+	}
+}
+
 void Game::ProcessInput(float dt)
 {
 	if (State == GAME_MENU) {
@@ -256,6 +279,20 @@ void Game::Update(float dt)
 {
 	CheckCollisions();
 	particle_manager->Update(dt);
+
+	for (auto it = powerups.begin(); it != powerups.end(); )
+	{
+		bool reached_end = it->Move(dt, LevelHeight);
+		if (reached_end) {
+			it = powerups.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+
+	player->Update(dt);
+
 	if (LevelComplete()) {
 		ResetGame();
 		State = GAME_WIN;
@@ -277,12 +314,17 @@ void Game::Render()
 	renderer->prepare();
 
 	renderer->render(Entity(&ResourceManager::GetRawModel("quad"), &ResourceManager::GetTexture("background"), glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(LevelWidth, LevelHeight, 0)), ResourceManager::GetShader("entity"));
+
 	for (auto& brick : Bricks)
 	{
 		if (brick.life > 0)
 			renderer->render(brick, ResourceManager::GetShader("entity_tinted"));
 	}
-	renderer->render(*player, ResourceManager::GetShader("entity"));
+	for (auto& powerup : powerups)
+	{
+		renderer->render(powerup, ResourceManager::GetShader("entity_tinted"));
+	}
+	renderer->render(*player, ResourceManager::GetShader("entity_tinted"));
 	renderer->render(*ball, ResourceManager::GetShader("entity"));
 
 	particle_manager->Render(*renderer);
@@ -324,7 +366,7 @@ void Game::CheckCollisions()
 {
 	for (Brick& brick : Bricks) {
 		if (brick.life > 0) {
-			Collision collision(CheckCollision(*ball, brick));
+			Collision collision(CheckBallCollision(*ball, brick));
 			if (collision.occured) {
 				if (!brick.solid) {
 					int orig_life = brick.life;
@@ -335,6 +377,10 @@ void Game::CheckCollisions()
 						brick.color = glm::vec4(0, 0.5, 0, 0.55);
 					if (brick.life == 3)
 						brick.color = glm::vec4(0, 0, 0.5, 0.55);
+				}
+
+				if (brick.life == 0) {
+					RollForPowerup(brick);
 				}
 
 				PlaySound(ResourceManager::GetSound("brick"));
@@ -359,8 +405,19 @@ void Game::CheckCollisions()
 		}
 	}
 
+	for (auto it = powerups.begin(); it != powerups.end();) {
+		Collision collision(CheckCollision(*player, *it));
+		if (collision.occured) {
+			player->CollectPowerup(it->type);
+			it = powerups.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+
 	if (!ball->stuck) {
-		Collision collision(CheckCollision(*ball, *player));
+		Collision collision(CheckBallCollision(*ball, *player));
 		if (collision.occured) {
 			PlaySound(ResourceManager::GetSound("paddle"));
 			float center_board = player->position.x + player->scale.x / 2.0f;
@@ -375,7 +432,7 @@ void Game::CheckCollisions()
 	}
 }
 
-Collision Game::CheckCollision(Ball& ball, Entity& two)
+Collision Game::CheckBallCollision(Ball& ball, Entity& two)
 {
 	// Simple collision check if both are square colliders
 	//bool x_overlap = (one.position.x + one.scale.x) >= two.position.x && one.position.x <= (two.position.x + two.scale.x);
@@ -401,6 +458,16 @@ Collision Game::CheckCollision(Ball& ball, Entity& two)
 
 	return Collision{ collision, dir, difference };
 }
+
+Collision Game::CheckCollision(Entity& one, Entity& two)
+{
+	// Simple collision check if both are square colliders
+	bool x_overlap = (one.position.x + one.scale.x) >= two.position.x && one.position.x <= (two.position.x + two.scale.x);
+	bool y_overlap = (one.position.y + one.scale.y) >= two.position.y && one.position.y <= (two.position.y + two.scale.y);
+	return Collision{ x_overlap && y_overlap, UP, glm::vec2(0) };
+}
+
+
 
 Game::~Game()
 {
