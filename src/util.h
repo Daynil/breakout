@@ -2,7 +2,7 @@
 
 #include <random>
 
-int random_int(int from, int to)
+inline int random_int(int from, int to)
 {
 	std::random_device rd;  // Seed generator
 	std::mt19937 gen(rd()); // Mersenne Twister engine
@@ -10,7 +10,7 @@ int random_int(int from, int to)
 	return dis(gen);
 }
 
-float random_float(float from, float to)
+inline float random_float(float from, float to)
 {
 	std::random_device rd;  // Seed generator
 	std::mt19937 gen(rd()); // Mersenne Twister engine

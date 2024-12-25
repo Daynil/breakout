@@ -6,9 +6,10 @@
 #include <glm/glm.hpp>
 
 #include "entity.h"
+#include "powerup.h"
 
 struct ActivePowerup {
-	std::string powerup;
+	PowerupType type;
 	float seconds_left;
 };
 
@@ -19,14 +20,15 @@ public:
 	float start_velocity = 500.0f;
 	float velocity = 500.0f;
 
+	glm::vec3 start_size;
 
 	std::vector<ActivePowerup> active_powerups;
 
 	Player(RawModel* model, Texture* texture, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec4 color = glm::vec4(0))
-		: Entity(model, texture, position, rotation, scale), color(color) {
+		: Entity(model, texture, position, rotation, scale), start_size(scale), color(color) {
 	};
 
-	void CollectPowerup(std::string powerup);
+	void CollectPowerup(PowerupType type);
 
 	void Move(float dt, int level_width, float move);
 	void Update(float dt);

@@ -52,3 +52,23 @@ bool Ball::Move(float dt, int level_width, int level_height, bool should_release
 
 	return false;
 }
+
+bool Ball::Update(float dt)
+{
+	if (is_fireball) {
+		fireball_time_left -= dt;
+		if (fireball_time_left <= 0) {
+			is_fireball = false;
+			color = glm::vec4(0);
+			return true;
+		}
+	}
+	return false;
+}
+
+void Ball::ApplyPowerup(PowerupType type)
+{
+	is_fireball = true;
+	fireball_time_left = 10.0f;
+	color = glm::vec4(0.8f, 0, 0, 0.3f);
+}

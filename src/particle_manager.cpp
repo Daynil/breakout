@@ -11,14 +11,13 @@ void ParticleManager::Init(unsigned int p_num_particles)
 	{
 		float random_x = random_float(-5, 5);
 		float random_y = random_float(-5, 5);
-		float rColor = random_float(0.5, 1);
 		particles.push_back(Particle(
 			model,
 			texture,
-			ref_entity->position + glm::vec3(random_x, random_y, 0.0f) + glm::vec3(ref_entity->scale.x / 4.0f, ref_entity->scale.x / 4.0f, 0.0f),
+			ref_entity->position + glm::vec3(random_x, random_y, 0.0f) + glm::vec3(ref_entity->scale.x / 2.0f, ref_entity->scale.x / 2.0f, 0.0f),
 			glm::vec3(0),
-			glm::vec3(ref_entity->scale / 4.0f),
-			glm::vec4(rColor, rColor, rColor, 1.0f),
+			glm::vec3(ref_entity->scale / 8.0f),
+			color,
 			random_float(0, 1)
 		));
 	}
@@ -46,11 +45,10 @@ void ParticleManager::Update(float dt)
 		if (particle.life <= 0) {
 			float random_x = random_float(-5, 5);
 			float random_y = random_float(-5, 5);
-			float rColor = random_float(0.5, 1);
 
 			particle.life = random_float(0, 1);
-			particle.position = ref_entity->position + glm::vec3(random_x, random_y, 0.0f) + glm::vec3(ref_entity->scale.x / 4.0f, ref_entity->scale.x / 4.0f, 0.0f);
-			particle.color = glm::vec4(rColor, rColor, rColor, 1.0f);
+			particle.position = ref_entity->position + glm::vec3(random_x, random_y, 0.0f) + glm::vec3(ref_entity->scale.x / 2.0f, ref_entity->scale.x / 2.0f, 0.0f);
+			particle.color = color;
 		}
 	}
 }

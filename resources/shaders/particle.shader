@@ -33,7 +33,7 @@ uniform vec4 u_color;
 
 void main()
 {
-    vec4 texture_color = texture(modelTexture, pass_textureCoord);
-    fragColor = texture_color * u_color;
+    float texture_alpha = texture(modelTexture, pass_textureCoord).a;
+    fragColor = vec4(u_color.rgb, texture_alpha * u_color.a);
     //fragColor = texture_color * vec4(1.0, 1.0, 0.6, 1.0);
 };

@@ -13,7 +13,7 @@
 
 #include "resource_manager.h"
 #include "text_renderer.h"
-//#include "util.h"
+#include "util.h"
 
 int BRICK_WIDTH = 50;
 int BRICK_HEIGHT = 25;
@@ -51,7 +51,13 @@ void Game::Init()
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
 	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
 	ResourceManager::LoadTexture("particle", Texture(RESOURCES_PATH "particle.png", true));
-	ResourceManager::LoadTexture("powerup_speed", Texture(RESOURCES_PATH "powerup_speed.png", true));
+
+
+	for (int i = 0; i < PowerupType::COUNT; i++)
+	{
+		std::string type = PowerupTypeString[i];
+		ResourceManager::LoadTexture(type, Texture(RESOURCES_PATH "powerup_" + type + ".png", true));
+	}
 
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
 	ResourceManager::LoadShader("entity_tinted", Shader(RESOURCES_PATH "shaders/entity_tinted.shader"));
@@ -195,18 +201,19 @@ void Game::RollForPowerup(Brick& brick_destroyed)
 {
 	//if (random_int(1, 2) == 2) {
 	if (true) {
+		PowerupType powerup_type = static_cast<PowerupType>(random_int(0, PowerupType::COUNT - 1));
 		powerups.push_back(
 			Powerup(
 				&ResourceManager::GetRawModel("quad"),
-				&ResourceManager::GetTexture("powerup_speed"),
+				&ResourceManager::GetTexture(PowerupTypeString[powerup_type]),
 				glm::vec3(
 					brick_destroyed.position.x + (BRICK_WIDTH / 2.0f),
 					brick_destroyed.position.y,
 					0),
 				glm::vec3(0),
-				glm::vec3(20.0f, 20.0f, 0),
+				glm::vec3(40.0f, 40.0f, 0),
 				glm::vec4(0.7f, 0.0f, 0.0f, 1),
-				"speed"
+				powerup_type
 			)
 		);
 	}
@@ -292,6 +299,10 @@ void Game::Update(float dt)
 	}
 
 	player->Update(dt);
+	bool fireball_expired = ball->Update(dt);
+	if (fireball_expired) {
+		particle_manager->color = glm::vec4(1);
+	}
 
 	if (LevelComplete()) {
 		ResetGame();
@@ -325,9 +336,10 @@ void Game::Render()
 		renderer->render(powerup, ResourceManager::GetShader("entity_tinted"));
 	}
 	renderer->render(*player, ResourceManager::GetShader("entity_tinted"));
-	renderer->render(*ball, ResourceManager::GetShader("entity"));
 
 	particle_manager->Render(*renderer);
+	renderer->render(*ball, ResourceManager::GetShader("entity_tinted"));
+
 	text_renderer->RenderText("Lives: " + std::to_string(lives), glm::vec2(5.0f, 5.0f), 0.4f);
 
 	if (State == GAME_MENU) {
@@ -368,7 +380,9 @@ void Game::CheckCollisions()
 		if (brick.life > 0) {
 			Collision collision(CheckBallCollision(*ball, brick));
 			if (collision.occured) {
-				if (!brick.solid) {
+				if (ball->is_fireball)
+					brick.life = 0;
+				else if (!brick.solid) {
 					int orig_life = brick.life;
 					brick.life -= 1;
 					if (orig_life > 1 && brick.life == 1)
@@ -384,6 +398,10 @@ void Game::CheckCollisions()
 				}
 
 				PlaySound(ResourceManager::GetSound("brick"));
+
+				// Ball goes right through if fireball!
+				if (ball->is_fireball)
+					return;
 
 				if (collision.dir == LEFT || collision.dir == RIGHT) {
 					ball->velocity.x = -ball->velocity.x;
@@ -408,7 +426,13 @@ void Game::CheckCollisions()
 	for (auto it = powerups.begin(); it != powerups.end();) {
 		Collision collision(CheckCollision(*player, *it));
 		if (collision.occured) {
-			player->CollectPowerup(it->type);
+			if (it->type != FIREBALL)
+				player->CollectPowerup(it->type);
+			else {
+				ball->ApplyPowerup(it->type);
+				particle_manager->color = glm::vec4(0.8f, 0, 0, 1);
+			}
+			PlaySound(ResourceManager::GetSound("powerup"));
 			it = powerups.erase(it);
 		}
 		else {
