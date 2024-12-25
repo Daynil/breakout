@@ -133,6 +133,7 @@ void Game::LoadLevel(int p_level)
 			Texture* texture;
 			int life = 0;
 			glm::vec4 color = glm::vec4(0);
+			bool solid = false;
 			if (brick_type == '0') {
 				col += 1;
 				if (col > longest_row)
@@ -142,6 +143,7 @@ void Game::LoadLevel(int p_level)
 			else if (brick_type == '1') {
 				life = 999;
 				texture = &ResourceManager::GetTexture("metal");
+				solid = true;
 			}
 			else if (brick_type == '2') {
 				life = 1;
@@ -164,7 +166,7 @@ void Game::LoadLevel(int p_level)
 			Bricks.push_back(
 				Brick(
 					model, texture, glm::vec3(BRICK_WIDTH * col, BRICK_HEIGHT * row, 0), glm::vec3(0), glm::vec3(BRICK_WIDTH, BRICK_HEIGHT, 0), color,
-					life
+					life, solid
 				)
 			);
 
@@ -264,7 +266,7 @@ void Game::Update(float dt)
 bool Game::LevelComplete()
 {
 	for (Brick& brick : Bricks) {
-		if (brick.life > 0)
+		if (!brick.solid && brick.life > 0)
 			return false;
 	}
 	return true;
@@ -324,7 +326,17 @@ void Game::CheckCollisions()
 		if (brick.life > 0) {
 			Collision collision(CheckCollision(*ball, brick));
 			if (collision.occured) {
-				brick.life = 0;
+				if (!brick.solid) {
+					int orig_life = brick.life;
+					brick.life -= 1;
+					if (orig_life > 1 && brick.life == 1)
+						brick.color = glm::vec4(0);
+					if (brick.life == 2)
+						brick.color = glm::vec4(0, 0.5, 0, 0.55);
+					if (brick.life == 3)
+						brick.color = glm::vec4(0, 0, 0.5, 0.55);
+				}
+
 				PlaySound(ResourceManager::GetSound("brick"));
 
 				if (collision.dir == LEFT || collision.dir == RIGHT) {
