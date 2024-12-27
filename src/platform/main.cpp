@@ -24,7 +24,6 @@ extern "C"
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = USE_GPU_ENGINE;
 }
 
-
 int main(void)
 {
 	if (!glfwInit())
