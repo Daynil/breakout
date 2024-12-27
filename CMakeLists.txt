@@ -8,16 +8,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 #! ! ! ! ! ! !
 # To ship the game:
-# 1. DELETE the `out` folder (VS doesn't recognize this change and rebuild).
-# 2. Set PRODUCTION_BUILD to `ON`.
-# 3. Switch to x64-Release configuration.
-# 4. Click inside CMakeLists.txt file and save.
+# 1. Set PRODUCTION_BUILD to `ON`.
+# 2. Switch to x64-Release configuration.
+# 3. DELETE the `out` folder (VS doesn't recognize this change and rebuild).
+# 4. Click inside CMakeLists.txt file and save to initiate CMake generation.
 # 5. Run game.exe to complete build.
 # 6. Use the game.exe file from ./out/build/x64-Release/game.exe and the ./resources folder together in a directory.
 #    - Note, all the other stuff in the x64-Release folder is not needed, just the exe.
 #
 # You can now run game.exe and the resources path will use the resources folder you copied.
-option(PRODUCTION_BUILD "Make this a production build" ON)
+option(PRODUCTION_BUILD "Make this a production build" OFF)
 
 
 # We want to use the static runtime so we don't have to ship with a .dll
