@@ -58,7 +58,7 @@ void Game::Init()
 	for (int i = 0; i < PowerupType::COUNT; i++)
 	{
 		std::string type = PowerupTypeString[i];
-		ResourceManager::LoadTexture(type, Texture(RESOURCES_PATH "powerup_" + type + ".png", true));
+		ResourceManager::LoadTexture("powerup_" + type, Texture(RESOURCES_PATH "powerup_" + type + ".png", true));
 	}
 
 	ResourceManager::LoadShader("entity", Shader(RESOURCES_PATH "shaders/entity.shader"));
@@ -211,10 +211,11 @@ void Game::RollForPowerup(Brick& brick_destroyed)
 	//if (true) {
 	if (random_int(1, 4) == 4) {
 		PowerupType powerup_type = static_cast<PowerupType>(random_int(0, PowerupType::COUNT - 1));
+		std::string prefix = "powerup_";
 		powerups.push_back(
 			Powerup(
 				&ResourceManager::GetRawModel("quad"),
-				&ResourceManager::GetTexture(PowerupTypeString[powerup_type]),
+				&ResourceManager::GetTexture(prefix + PowerupTypeString[powerup_type]),
 				glm::vec3(
 					brick_destroyed.position.x + (BRICK_WIDTH / 2.0f),
 					brick_destroyed.position.y,
