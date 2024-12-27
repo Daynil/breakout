@@ -15,6 +15,7 @@
 #include "particle_manager.h"
 #include "text_renderer.h"
 #include "powerup.h"
+#include "laser.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -48,6 +49,8 @@ public:
 
 	Player* player;
 	Ball* ball;
+
+	LaserGun* laser_gun = nullptr;
 
 	ParticleManager* particle_manager;
 

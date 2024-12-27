@@ -28,6 +28,7 @@ public:
 		: Entity(model, texture, position, rotation, scale), start_size(scale), color(color) {
 	};
 
+	void Reset();
 	void CollectPowerup(PowerupType type);
 
 	void Move(float dt, int level_width, float move);

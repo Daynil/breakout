@@ -51,6 +51,8 @@ void Game::Init()
 	ResourceManager::LoadTexture("brick", Texture(RESOURCES_PATH "brick.png", true));
 	ResourceManager::LoadTexture("metal", Texture(RESOURCES_PATH "metal.png", true));
 	ResourceManager::LoadTexture("particle", Texture(RESOURCES_PATH "particle.png", true));
+	ResourceManager::LoadTexture("laser_gun", Texture(RESOURCES_PATH "laser_gun.png", true));
+	ResourceManager::LoadTexture("laser", Texture(RESOURCES_PATH "laser.png", true));
 
 
 	for (int i = 0; i < PowerupType::COUNT; i++)
@@ -70,6 +72,7 @@ void Game::Init()
 	ResourceManager::LoadRSound("brick_solid", RESOURCES_PATH "solid.wav");
 	ResourceManager::LoadRSound("powerup", RESOURCES_PATH "powerup.wav");
 	ResourceManager::LoadRSound("paddle", RESOURCES_PATH "bleep.wav");
+	ResourceManager::LoadRSound("laser", RESOURCES_PATH "laser.wav");
 
 	text_renderer = new TextRenderer(LevelWidth, LevelHeight, RESOURCES_PATH "PressStart2P.ttf");
 
@@ -112,6 +115,12 @@ void Game::Init()
 void Game::ResetGame()
 {
 	ball->Reset();
+
+	if (laser_gun)
+		laser_gun = nullptr;
+
+	powerups.clear();
+
 	lives = 3;
 	LoadLevel(level);
 }
@@ -199,8 +208,8 @@ void Game::LoadLevel(int p_level)
 
 void Game::RollForPowerup(Brick& brick_destroyed)
 {
-	//if (random_int(1, 2) == 2) {
-	if (true) {
+	//if (true) {
+	if (random_int(1, 4) == 4) {
 		PowerupType powerup_type = static_cast<PowerupType>(random_int(0, PowerupType::COUNT - 1));
 		powerups.push_back(
 			Powerup(
@@ -229,8 +238,8 @@ void Game::ProcessInput(float dt)
 
 		if (keyboard_keys[GLFW_KEY_W] && !keyboard_keys_processed[GLFW_KEY_W]) {
 			level += 1;
-			if (level == 4)
-				level = 3;
+			if (level == 11)
+				level = 10;
 			LoadLevel(level);
 			keyboard_keys_processed[GLFW_KEY_W] = true;
 		}
@@ -259,8 +268,19 @@ void Game::ProcessInput(float dt)
 		player_movement = -1;
 	if (keyboard_keys[GLFW_KEY_D] || keyboard_keys[GLFW_KEY_RIGHT])
 		player_movement = 1;
-	if (keyboard_keys[GLFW_KEY_SPACE])
-		should_release = true;
+
+	if (ball->stuck) {
+		if (keyboard_keys[GLFW_KEY_SPACE])
+			should_release = true;
+	}
+	else if (laser_gun) {
+		if (keyboard_keys[GLFW_KEY_SPACE] && !keyboard_keys_processed[GLFW_KEY_SPACE]) {
+			laser_gun->Shoot();
+			PlaySound(ResourceManager::GetSound("laser"));
+			keyboard_keys_processed[GLFW_KEY_SPACE] = true;
+		}
+	}
+
 
 	// Gamepad controls
 	if (left_stick_x != 0)
@@ -304,6 +324,16 @@ void Game::Update(float dt)
 		particle_manager->color = glm::vec4(1);
 	}
 
+	if (laser_gun) {
+		bool laser_expired = laser_gun->Update(dt);
+		if (laser_expired) {
+			laser_gun = nullptr;
+		}
+		else {
+			laser_gun->Move(dt);
+		}
+	}
+
 	if (LevelComplete()) {
 		ResetGame();
 		State = GAME_WIN;
@@ -335,6 +365,14 @@ void Game::Render()
 	{
 		renderer->render(powerup, ResourceManager::GetShader("entity_tinted"));
 	}
+
+	if (laser_gun) {
+		renderer->render(*laser_gun, ResourceManager::GetShader("entity_tinted"));
+		for (auto& laser : laser_gun->lasers) {
+			renderer->render(laser, ResourceManager::GetShader("entity_tinted"));
+		}
+	}
+
 	renderer->render(*player, ResourceManager::GetShader("entity_tinted"));
 
 	particle_manager->Render(*renderer);
@@ -378,47 +416,72 @@ void Game::CheckCollisions()
 {
 	for (Brick& brick : Bricks) {
 		if (brick.life > 0) {
+
+			bool any_collision = false;
+			int orig_life = brick.life;
+
+			// Check ball-brick collisions
 			Collision collision(CheckBallCollision(*ball, brick));
 			if (collision.occured) {
-				if (ball->is_fireball)
+				any_collision = true;
+
+				if (ball->is_fireball) {
 					brick.life = 0;
-				else if (!brick.solid) {
-					int orig_life = brick.life;
-					brick.life -= 1;
-					if (orig_life > 1 && brick.life == 1)
-						brick.color = glm::vec4(0);
-					if (brick.life == 2)
-						brick.color = glm::vec4(0, 0.5, 0, 0.55);
-					if (brick.life == 3)
-						brick.color = glm::vec4(0, 0, 0.5, 0.55);
 				}
+				else if (!brick.solid) {
+					brick.life -= 1;
+				}
+
+				// Ball goes right through if fireball!
+				if (!ball->is_fireball) {
+					if (collision.dir == LEFT || collision.dir == RIGHT) {
+						ball->velocity.x = -ball->velocity.x;
+						float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.x);
+						if (collision.dir == LEFT)
+							ball->position.x += penetration;
+						else
+							ball->position.x -= penetration;
+					}
+					else {
+						ball->velocity.y = -ball->velocity.y;
+						float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.y);
+						if (collision.dir == UP)
+							ball->position.y -= penetration;
+						else
+							ball->position.y += penetration;
+					}
+				}
+			}
+
+			// Check laser-brick collisions
+			if (laser_gun) {
+				for (auto it = laser_gun->lasers.begin(); it != laser_gun->lasers.end();) {
+					Collision collision(CheckCollision(*it, brick));
+
+					if (collision.occured) {
+						any_collision = true;
+						it = laser_gun->lasers.erase(it);
+						if (!brick.solid)
+							brick.life -= 1;
+					}
+					else
+						++it;
+				}
+			}
+
+			if (any_collision) {
+				if (orig_life > 1 && brick.life == 1)
+					brick.color = glm::vec4(0);
+				if (brick.life == 2)
+					brick.color = glm::vec4(0, 0.5, 0, 0.55);
+				if (brick.life == 3)
+					brick.color = glm::vec4(0, 0, 0.5, 0.55);
 
 				if (brick.life == 0) {
 					RollForPowerup(brick);
 				}
 
 				PlaySound(ResourceManager::GetSound("brick"));
-
-				// Ball goes right through if fireball!
-				if (ball->is_fireball)
-					return;
-
-				if (collision.dir == LEFT || collision.dir == RIGHT) {
-					ball->velocity.x = -ball->velocity.x;
-					float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.x);
-					if (collision.dir == LEFT)
-						ball->position.x += penetration;
-					else
-						ball->position.x -= penetration;
-				}
-				else {
-					ball->velocity.y = -ball->velocity.y;
-					float penetration = (ball->scale.x / 2.0f) - std::abs(collision.diff.y);
-					if (collision.dir == UP)
-						ball->position.y -= penetration;
-					else
-						ball->position.y += penetration;
-				}
 			}
 		}
 	}
@@ -426,9 +489,19 @@ void Game::CheckCollisions()
 	for (auto it = powerups.begin(); it != powerups.end();) {
 		Collision collision(CheckCollision(*player, *it));
 		if (collision.occured) {
-			if (it->type != FIREBALL)
+			if (it->type == PowerupType::SPEED || it->type == PowerupType::WIDTH)
 				player->CollectPowerup(it->type);
-			else {
+			else if (it->type == LASER) {
+				laser_gun = new LaserGun(
+					&ResourceManager::GetRawModel("quad"),
+					&ResourceManager::GetTexture("laser_gun"),
+					player->position + glm::vec3(player->scale.x / 2.0f, player->scale.y / 2.0f, 0),
+					glm::vec3(0),
+					glm::vec3(40.0f, 40.0f, 0),
+					player
+				);
+			}
+			else if (it->type == FIREBALL) {
 				ball->ApplyPowerup(it->type);
 				particle_manager->color = glm::vec4(0.8f, 0, 0, 1);
 			}

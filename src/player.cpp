@@ -26,6 +26,11 @@ void Player::CollectPowerup(PowerupType type)
 	}
 }
 
+void Player::Reset()
+{
+	active_powerups.clear();
+}
+
 void Player::Move(float dt, int level_width, float move)
 {
 	if (position.x >= 0 && position.x <= (level_width - scale.x))
